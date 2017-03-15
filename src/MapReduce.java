@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+import java.io.*;
 public class MapReduce {
 
     public static void main(String[] args) {
@@ -37,6 +37,40 @@ public class MapReduce {
         ////////////
         // INPUT:
         ///////////
+
+        String currdir = System.getProperty("user.dir");
+        List<String> fileNames =new ArrayList<>();
+//        List<String> filelocs = new ArrayList<>();
+        List<Map<String,String>> inputs = new ArrayList<Map<String,String>>();
+        for (String arg : args) {
+            fileNames.add(arg);
+        }
+
+        String separator = "\n";
+        for (String file : fileNames) {
+            String loc = currdir+file;
+            String line=null;
+            String fileContent = "";
+            try {
+                FileReader fr = new FileReader(loc);
+                BufferedReader br=new BufferedReader(fr);
+
+                while((line=br.readLine())!=null){
+                    fileContent=fileContent+line+separator;
+                }
+                Map<String,String> input= new HashMap<>();
+                input.put(loc,fileContent);
+                inputs.add(input);
+
+                br.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
 
         Map<String, String> input = new HashMap<String, String>();
         input.put("file1.txt", "foo foo bar cat dog dog");
