@@ -40,8 +40,7 @@ public class MapReduce {
 
         String currdir = System.getProperty("user.dir");
         List<String> fileNames =new ArrayList<>();
-//        List<String> filelocs = new ArrayList<>();
-        List<Map<String,String>> inputs = new ArrayList<Map<String,String>>();
+        Map<String,String>inputs = new HashMap<String,String>();
         for (String arg : args) {
             fileNames.add(arg);
         }
@@ -58,9 +57,7 @@ public class MapReduce {
                 while((line=br.readLine())!=null){
                     fileContent=fileContent+line+separator;
                 }
-                Map<String,String> input= new HashMap<>();
-                input.put(loc,fileContent);
-                inputs.add(input);
+                inputs.put(file,fileContent);
 
                 br.close();
             } catch (FileNotFoundException e) {
@@ -72,92 +69,94 @@ public class MapReduce {
 
 
 
-        Map<String, String> input = new HashMap<String, String>();
-        input.put("file1.txt", "foo foo bar cat dog dog");
-        input.put("file2.txt", "foo house cat cat dog");
-        input.put("file3.txt", "foo foo foo bird");
-
-        // APPROACH #1: Brute force
-        {
-            Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
-
-            Iterator<Map.Entry<String, String>> inputIter = input.entrySet().iterator();
-            while(inputIter.hasNext()) {
-                Map.Entry<String, String> entry = inputIter.next();
-                String file = entry.getKey();
-                String contents = entry.getValue();
-
-                String[] words = contents.trim().split("\\s+");
-
-                for(String word : words) {
-
-                    Map<String, Integer> files = output.get(word);
-                    if (files == null) {
-                        files = new HashMap<String, Integer>();
-                        output.put(word, files);
-                    }
-
-                    Integer occurrences = files.remove(file);
-                    if (occurrences == null) {
-                        files.put(file, 1);
-                    } else {
-                        files.put(file, occurrences.intValue() + 1);
-                    }
-                }
-            }
-
-            // show me:
-            System.out.println(output);
-        }
-
-
-        // APPROACH #2: MapReduce
-        {
-            Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
-
-            // MAP:
-
-            List<MappedItem> mappedItems = new LinkedList<MappedItem>();
-
-            Iterator<Map.Entry<String, String>> inputIter = input.entrySet().iterator();
-            while(inputIter.hasNext()) {
-                Map.Entry<String, String> entry = inputIter.next();
-                String file = entry.getKey();
-                String contents = entry.getValue();
-
-                map(file, contents, mappedItems);
-            }
-
-            // GROUP:
-
-            Map<String, List<String>> groupedItems = new HashMap<String, List<String>>();
-
-            Iterator<MappedItem> mappedIter = mappedItems.iterator();
-            while(mappedIter.hasNext()) {
-                MappedItem item = mappedIter.next();
-                String word = item.getWord();
-                String file = item.getFile();
-                List<String> list = groupedItems.get(word);
-                if (list == null) {
-                    list = new LinkedList<String>();
-                    groupedItems.put(word, list);
-                }
-                list.add(file);
-            }
-
-            // REDUCE:
-
-            Iterator<Map.Entry<String, List<String>>> groupedIter = groupedItems.entrySet().iterator();
-            while(groupedIter.hasNext()) {
-                Map.Entry<String, List<String>> entry = groupedIter.next();
-                String word = entry.getKey();
-                List<String> list = entry.getValue();
-
-                reduce(word, list, output);
-            }
-
-            System.out.println(output);
-        }
+//        Map<String, String> input = new HashMap<String, String>();
+//        input.put("file1.txt", "foo foo bar cat dog dog");
+//        input.put("file2.txt", "foo house cat cat dog");
+//        input.put("file3.txt", "foo foo foo bird");
+//
+//        // APPROACH #1: Brute force
+//        {
+//            Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
+//
+//            Iterator<Map.Entry<String, String>> inputIter = input.entrySet().iterator();
+//            while(inputIter.hasNext()) {
+//                Map.Entry<String, String> entry = inputIter.next();
+//                String file = entry.getKey();
+//                String contents = entry.getValue();
+//
+//                String[] words = contents.trim().split("\\s+");
+//
+//                for(String word : words) {
+//
+//                    Map<String, Integer> files = output.get(word);
+//                    if (files == null) {
+//                        files = new HashMap<String, Integer>();
+//                        output.put(word, files);
+//                    }
+//
+//                    Integer occurrences = files.remove(file);
+//                    if (occurrences == null) {
+//                        files.put(file, 1);
+//                    } else {
+//                        files.put(file, occurrences.intValue() + 1);
+//                    }
+//                }
+//            }
+//
+//            // show me:
+//            System.out.println(output);
+//        }
+//
+//
+//        // APPROACH #2: MapReduce
+//        {
+//            Map<String, Map<String, Integer>> output = new HashMap<String, Map<String, Integer>>();
+//
+//            // MAP:
+//
+//            List<MappedItem> mappedItems = new LinkedList<MappedItem>();
+//
+//            Iterator<Map.Entry<String, String>> inputIter = input.entrySet().iterator();
+//            while(inputIter.hasNext()) {
+//                Map.Entry<String, String> entry = inputIter.next();
+//                String file = entry.getKey();
+//                String contents = entry.getValue();
+//
+//                map(file, contents, mappedItems);
+//            }
+//
+//            // GROUP:
+//
+//            Map<String, List<String>> groupedItems = new HashMap<String, List<String>>();
+//
+//            Iterator<MappedItem> mappedIter = mappedItems.iterator();
+//            while(mappedIter.hasNext()) {
+//                MappedItem item = mappedIter.next();
+//                String word = item.getWord();
+//                String file = item.getFile();
+//                List<String> list = groupedItems.get(word);
+//                if (list == null) {
+//                    list = new LinkedList<String>();
+//                    groupedItems.put(word, list);
+//                }
+//
+//                list.add(file);
+//
+//            }
+//
+//            // REDUCE:
+//
+//            Iterator<Map.Entry<String, List<String>>> groupedIter = groupedItems.entrySet().iterator();
+//            while(groupedIter.hasNext()) {
+//                Map.Entry<String, List<String>> entry = groupedIter.next();
+//                String word = entry.getKey();
+//                List<String> list = entry.getValue();
+//
+//                reduce(word, list, output);
+//            }
+//
+//            System.out.println(output);
+//        }
 
 
         // APPROACH #3: Distributed MapReduce
@@ -175,9 +174,9 @@ public class MapReduce {
                 }
             };
 
-            List<Thread> mapCluster = new ArrayList<Thread>(input.size());
+            List<Thread> mapCluster = new ArrayList<Thread>(inputs.size());
 
-            Iterator<Map.Entry<String, String>> inputIter = input.entrySet().iterator();
+            Iterator<Map.Entry<String, String>> inputIter = inputs.entrySet().iterator();
             while(inputIter.hasNext()) {
                 Map.Entry<String, String> entry = inputIter.next();
                 final String file = entry.getKey();
@@ -204,48 +203,118 @@ public class MapReduce {
 
             // GROUP:
 
-            Map<String, List<String>> groupedItems = new HashMap<String, List<String>>();
+//            =================================
+//            DES' Code
+//            ==================================
 
-            Iterator<MappedItem> mappedIter = mappedItems.iterator();
-            while(mappedIter.hasNext()) {
-                MappedItem item = mappedIter.next();
-                String word = item.getWord();
-                String file = item.getFile();
-                List<String> list = groupedItems.get(word);
-                if (list == null) {
-                    list = new LinkedList<String>();
-                    groupedItems.put(word, list);
+//            Map<String, List<String>> groupedItems = new HashMap<String, List<String>>();
+//
+
+//
+//            Iterator<MappedItem> mappedIter = mappedItems.iterator();
+//            while(mappedIter.hasNext()) {
+//                MappedItem item = mappedIter.next();
+//                String word = item.getWord();
+//                String file = item.getFile();
+//                List<String> list = groupedItems.get(word);
+//                if (list == null) {
+//                    list = new LinkedList<String>();
+//                    groupedItems.put(word, list);
+//                }
+//                list.add(file);
+//            }
+
+            Map<Character,Map<String,List<String>>> gItems= new HashMap<>();
+//            =================================
+//            OUR' Code
+//            ==================================
+            for (MappedItem mappedItem : mappedItems) {
+
+                String word =mappedItem.getWord();
+                String file = mappedItem.getFile();
+
+                char startletter= word.charAt(0);
+
+                Map<String,List<String>>mapp=gItems.get(startletter);
+                if(mapp==null){
+                    mapp=new HashMap<>();
+                    gItems.put(startletter,mapp);
                 }
-                list.add(file);
+
+                List<String> listofwords = mapp.get(file);
+                if(listofwords==null){
+                    listofwords=new LinkedList<>();
+                }
+                listofwords.add(word);
+                mapp.put(file,listofwords);
+
+
             }
 
             // REDUCE:
 
-            final ReduceCallback<String, String, Integer> reduceCallback = new ReduceCallback<String, String, Integer>() {
+//            =================================
+//            DES' Code
+//            ==================================
+//            final ReduceCallback<String, String, Integer> reduceCallback = new ReduceCallback<String, String, Integer>() {
+//                @Override
+//                public synchronized void reduceDone(String k, Map<String, Integer> v) {
+//                    output.put(k, v);
+//                }
+//            };
+
+//            =================================
+//            OUR' Code
+//            ==================================
+            final Map<Character, Map<String, Integer>> testoutput = new HashMap<>();
+            final ReduceCallback<Character,String,Integer> rCallback = new ReduceCallback<Character, String, Integer>() {
                 @Override
-                public synchronized void reduceDone(String k, Map<String, Integer> v) {
-                    output.put(k, v);
+                public synchronized void reduceDone(Character character, Map<String, Integer> results) {
+                    testoutput.put(character,results);
                 }
             };
 
-            List<Thread> reduceCluster = new ArrayList<Thread>(groupedItems.size());
+//            =================================
+//            DES' Code
+//            ==================================
+//            List<Thread> reduceCluster = new ArrayList<Thread>(groupedItems.size());
+//
+//            Iterator<Map.Entry<String, List<String>>> groupedIter = groupedItems.entrySet().iterator();
+//            while(groupedIter.hasNext()) {
+//                Map.Entry<String, List<String>> entry = groupedIter.next();
+//                final String word = entry.getKey();
+//                final List<String> list = entry.getValue();
+//
+//                Thread t = new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        reduce(word, list, reduceCallback);
+//                    }
+//                });
+//                reduceCluster.add(t);
+//                t.start();
+//            }
 
-            Iterator<Map.Entry<String, List<String>>> groupedIter = groupedItems.entrySet().iterator();
-            while(groupedIter.hasNext()) {
-                Map.Entry<String, List<String>> entry = groupedIter.next();
-                final String word = entry.getKey();
-                final List<String> list = entry.getValue();
+//            =================================
+//            OUR' Code
+//            ==================================
+            List<Thread> reduceCluster = new ArrayList<Thread>(gItems.size());
+            Iterator<Map.Entry<Character,Map<String,List<String>>>> gIter = gItems.entrySet().iterator();
+            while(gIter.hasNext()) {
+                Map.Entry<Character, Map<String, List<String>>> entry = gIter.next();
+                final char letter = entry.getKey();
+                final Map<String, List<String>> mapp = entry.getValue();
 
-                Thread t = new Thread(new Runnable() {
+                Thread t = new Thread(new Runnable(){
                     @Override
-                    public void run() {
-                        reduce(word, list, reduceCallback);
+                    public void run(){
+                        reduce(letter,mapp,rCallback);
                     }
                 });
+
                 reduceCluster.add(t);
                 t.start();
             }
-
             // wait for reducing phase to be over:
             for(Thread t : reduceCluster) {
                 try {
@@ -255,7 +324,12 @@ public class MapReduce {
                 }
             }
 
-            System.out.println(output);
+//            System.out.println(output);
+            System.out.println();
+            System.out.println("Num. Occurences of Letters in Each file:");
+            testoutput.forEach((key,value)->{
+                System.out.println(key+"-->"+value);
+            });
         }
     }
 
@@ -293,6 +367,7 @@ public class MapReduce {
         callback.mapDone(file, results);
     }
 
+
     public static interface ReduceCallback<E, K, V> {
 
         public void reduceDone(E e, Map<K,V> results);
@@ -310,6 +385,22 @@ public class MapReduce {
             }
         }
         callback.reduceDone(word, reducedList);
+
+
+    }
+
+    public static void reduce(char letter, Map<String,List<String>> filewordmap, ReduceCallback<Character,String,Integer>callback){
+
+        Map<String, Integer> reducedList = new HashMap<>();
+
+        for (String file : filewordmap.keySet()) {
+
+            int numwordsinfile=filewordmap.get(file).size();
+
+            reducedList.put(file,numwordsinfile);
+        }
+        callback.reduceDone(letter,reducedList);
+
     }
 
     private static class MappedItem {
